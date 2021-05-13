@@ -98,10 +98,15 @@ window.addEventListener('load', () => loadNewSentence())
 
 function Footer() {
   return (
-    <footer><p>
-      Шизоньян — генератор твитов&nbsp;<a href="https://twitter.com/M_Simonyan">Маргариты Симоньян</a>.
-      Автор: VityaSchel / 2021
-    </p></footer>
+    <footer>
+      <p>
+        Шизоньян — генератор твитов <a href="https://twitter.com/M_Simonyan">Маргариты Симоньян</a>.
+        Автор: VityaSchel / 2021
+      </p>
+      <p>
+        ИИ использует цепи маркова, натренировано на ~15 тыс твитах Маргариты с 2012 по 2021 годы.
+      </p>
+    </footer>
   )
 }
 
