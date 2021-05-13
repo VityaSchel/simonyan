@@ -1,0 +1,7 @@
+node_modules/**
+buildModel.py3
+jsonToLines.js
+Output.json
+Output2.json
+Output3.txt
+scrape.py3

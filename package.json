@@ -1,0 +1,12 @@
+{
+  "name": "simonyan",
+  "version": "1.0.0",
+  "description": "",
+  "main": "jsonToLines.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "vityaschel <vityaschel@utidteam.com> (https://vityaschel.utidteam.com/)",
+  "license": "mit"
+}
