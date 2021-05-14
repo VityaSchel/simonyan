@@ -59,6 +59,7 @@ body {
           }
 
           #tweet-editor {
+            position: relative;
             flex: 1;
 
             textarea {
@@ -69,8 +70,19 @@ body {
               border: 0;
               resize: none;
 
+              &#only-android {
+                position: absolute;
+                display: none;
+                opacity: 0;
+              }
+
               @media (orientation: portrait){
                 width: 100%;
+
+                &#only-android {
+                  display: block;
+                  width: 100%;
+                }
               }
 
               &:focus {

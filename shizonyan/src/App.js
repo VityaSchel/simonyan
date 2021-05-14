@@ -53,11 +53,28 @@ function TweetText() {
     textarea.current.value += srcTweet[index]??''
     index++;
     textarea.current.scrollTo(0, 99999)
+    return false;
+  }
+
+  const block = event => {
+    event.preventDefault()
+  }
+
+  const blockEvents = {
+    onKeyUp: block,
+    onInput: block,
+    onKeyPress: block,
+    onPaste: block,
+    onCut: block,
   }
 
   return (
-    <textarea onKeyDown={handleKeyDown} ref={textarea} spellCheck="false"
-      placeholder="Что происходит?" id="tweet-text"></textarea>
+    <>
+      <textarea onKeyDown={handleKeyDown} id="only-android"
+        ></textarea>
+      <textarea spellCheck="false" onKeyDown={handleKeyDown}
+        placeholder="Что происходит?" ref={textarea} id="tweet-text"></textarea>
+    </>
   )
 }
 
