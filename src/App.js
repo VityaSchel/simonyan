@@ -1,5 +1,4 @@
 import React from 'react'
-import logo from './logo.svg'
 import './App.scss'
 import Spinner from 'react-bootstrap/Spinner'
 import 'bootstrap/dist/css/bootstrap.min.css'
@@ -14,6 +13,39 @@ function App() {
 }
 
 function TweetArea() {
+  const [sentences, setSentences] = React.useState([])
+  const [srcTweet, setSrcTweet] = React.useState()
+  const [tweetText, setTweetText] = React.useState('')
+  const [index, setIndex] = React.useState(0)
+
+  async function loadSentences() {
+    // previously it was using '/generator' endpoint which actually generated sentence on compiled model using python3
+    // then I generated ~1000 sentences and saved to text file, leaving /generator to read from this file
+    // unfortunately I have little RAM so I had to stop nodejs server and make the file static
+    const response = await fetch('/generated.txt')
+    const sentences = await response.text()
+    setSentences(sentences.split('\n').filter(Boolean))
+  }
+
+  React.useEffect(() => {
+    loadNewSentence(sentences)
+  }, [sentences])
+
+  async function loadNewSentence(sentences) {
+    setSrcTweet(sentences[Math.floor(Math.random() * sentences.length)])
+    setIndex(0)
+    setTweetText('')
+  }
+
+  React.useEffect(() => {
+    loadSentences()
+  }, [])
+
+  const handleReset = async () => {
+    await new Promise(resolve => setTimeout(resolve, 500))
+    loadNewSentence(sentences)
+  }
+
   return (
     <div id="area">
       <div id="tweet-inner">
@@ -25,7 +57,13 @@ function TweetArea() {
             <img src="/picture.png" width="48" height="48" alt="Автарка"/>
           </div>
           <div id="tweet-editor">
-            <TweetText />
+            <TweetText 
+              value={tweetText}
+              onHit={() => {
+                setTweetText(tweetText + (srcTweet[index] ?? ''))
+                setIndex(index + 1)
+              }}
+            />
             <div id="tweet-buttonbar">
               <div id="tweet-bar-buttons">
                 <ButtonPlaceholder />
@@ -34,7 +72,10 @@ function TweetArea() {
                 <ButtonPlaceholder />
                 <ButtonPlaceholder />
               </div>
-              <TweetButton />
+              <TweetButton 
+                disabled={tweetText === ''}
+                onReset={handleReset} 
+              />
             </div>
           </div>
         </div>
@@ -43,38 +84,31 @@ function TweetArea() {
   )
 }
 
-let srcTweet, index
-function TweetText() {
+function TweetText({ value, onHit }) {
   const textarea = React.useRef()
 
   const handleKeyDown = event => {
-    if(event.ctrlKey) return
     event.preventDefault()
-    textarea.current.value += srcTweet[index]??''
-    index++
     textarea.current.scrollTo(0, 99999)
+    onHit()
     return false
   }
 
-  const block = event => {
-    event.preventDefault()
-  }
-
-  const blockEvents = {
-    onKeyUp: block,
-    onInput: block,
-    onKeyPress: block,
-    onPaste: block,
-    onCut: block,
+  const handleChange = (e) => {
+    if(e.target.value !== value) {
+      handleKeyDown(e)
+    }
   }
 
   return (
-    <>
-      <textarea onKeyDown={handleKeyDown} id="only-android"
-        ></textarea>
-      <textarea spellCheck="false" onKeyDown={handleKeyDown}
-        placeholder="Что происходит? Напечатайте текст на клавиатуре..." ref={textarea} id="tweet-text"></textarea>
-    </>
+    <textarea 
+      spellCheck="false" 
+      placeholder="Что происходит? Напечатайте текст на клавиатуре..." 
+      value={value}
+      ref={textarea}
+      id="tweet-text"
+      onChange={handleChange}
+    />
   )
 }
 
@@ -82,43 +116,24 @@ function ButtonPlaceholder() {
   return <div className="button-placeholder"></div>
 }
 
-function TweetButton() {
+function TweetButton({ onReset, disabled }) {
   const [isLoading, setIsLoading] = React.useState(false)
 
   const handleClick = async () => {
     setIsLoading(true)
     document.querySelector('#tweet-text').setAttribute('disabled', 'disabled')
-    await loadNewSentence()
+    await onReset()
     setIsLoading(false)
     document.querySelector('#tweet-text').removeAttribute('disabled')
   }
 
   return (
-    <button id="tweet-action" onClick={handleClick}>{
+    <button disabled={disabled} id="tweet-action" onClick={handleClick}>{
       isLoading?
       <Spinner animation="border" variant="light" size="sm" />
       :'Твитнуть'
     }</button>
   )
-}
-
-async function loadSentences() {
-  // previously it was using '/generator' endpoint which actually generated sentence on compiled model using python3
-  // then I generated ~1000 sentences and saved to text file, leaving /generator to read from this file
-  // unfortunately I have little RAM so I had to stop nodejs server and make the file static
-  const response = await fetch('/generated.txt')
-  const sentences = await response.text()
-  window.sentences = sentences.split('\n')
-}
-
-window.addEventListener('load', () => loadSentences())
-
-async function loadNewSentence() {
-  await new Promise(resolve => setInterval(() => window.sentences && resolve()))
-  document.querySelector('#tweet-text').value = ''
-  srcTweet = window.sentences[Math.floor(Math.random() * window.sentences.length)]
-  index = 0
-  return true
 }
 
 function Footer() {

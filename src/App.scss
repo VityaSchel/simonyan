@@ -129,8 +129,13 @@ body {
                   outline: 0;
                 }
 
-                &:hover {
+                &:hover:not([disabled]) {
                   background-color: #1a91da;
+                }
+
+                &[disabled] {
+                  opacity: 0.5;
+                  cursor: default;
                 }
               }
             }
